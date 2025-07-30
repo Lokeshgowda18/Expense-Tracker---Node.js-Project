@@ -1,0 +1,18 @@
+# JWT secret for signing tokens
+JWT_SECRET=your-jwt-secret-key
+
+# Cashfree test credentials
+CASHFREE_CLIENT_ID=your-cashfree-client-id
+CASHFREE_CLIENT_SECRET=your-cashfree-client-secret
+
+# MySQL database config
+DB_NAME=your-database-name
+DB_USER=your-mysql-username
+DB_PASS=your-mysql-password
+
+# Gmail SMTP for sending password reset emails
+GMAIL_USER=your-gmail-address@gmail.com
+GMAIL_PASS=your-gmail-app-password
+
+# The URL that will be used in password reset emails
+RESET_PASSWORD_BASE_URL=http://localhost:3000/password/resetpassword
