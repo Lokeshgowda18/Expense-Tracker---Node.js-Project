@@ -1,3 +1,28 @@
+// Helper function to show temporary alerts
+function showPopup(message, type = 'success') {
+  const popup = document.createElement('div');
+  popup.textContent = message;
+  popup.style.position = 'fixed';
+  popup.style.top = '20px';
+  popup.style.right = '20px';
+  popup.style.padding = '12px 20px';
+  popup.style.zIndex = '9999';
+  popup.style.borderRadius = '8px';
+  popup.style.fontWeight = 'bold';
+  popup.style.boxShadow = '0 0 10px rgba(0,0,0,0.2)';
+  popup.style.backgroundColor = type === 'error' ? '#dc3545' : '#28a745';
+  popup.style.color = '#fff';
+  popup.style.opacity = '1';
+  popup.style.transition = 'opacity 0.5s ease';
+
+  document.body.appendChild(popup);
+
+  setTimeout(() => {
+    popup.style.opacity = '0';
+    setTimeout(() => popup.remove(), 500);
+  }, 2500);
+}
+
 // LOGIN form logic
 document.getElementById('loginForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -18,17 +43,21 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
       sessionStorage.setItem('token', data.token);
       sessionStorage.setItem('isPremium', data.isPremium);
 
-      if (data.isPremium) {
-        window.location.href = '/premium'; // Premium dashboard
-      } else {
-        window.location.href = '/expenses'; // Normal dashboard
-      }
+      showPopup('Login successful! Redirecting...');
+
+      setTimeout(() => {
+        if (data.isPremium) {
+          window.location.href = '/premium';
+        } else {
+          window.location.href = '/expenses';
+        }
+      }, 1500);
     } else {
-      alert(data.message || 'Login failed. Please check your credentials.');
+      showPopup(data.message || 'Login failed. Please check your credentials.', 'error');
     }
   } catch (err) {
     console.error(err);
-    alert('Something went wrong. Please try again later.');
+    showPopup('Something went wrong. Please try again later.', 'error');
   }
 });
 
@@ -57,10 +86,10 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async (
 
     await res.json();
 
-    alert('If your email is valid, a reset link has been sent.');
+    showPopup('If your email is valid, a reset link has been sent.');
     document.getElementById('forgotPasswordForm').classList.add('d-none');
   } catch (err) {
     console.error(err);
-    alert('Something went wrong. Please try again.');
+    showPopup('Something went wrong. Please try again.', 'error');
   }
 });

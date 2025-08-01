@@ -12,7 +12,7 @@
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      background-color: #121212; /* Dark charcoal background */
+      background-color: #121212;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -68,7 +68,7 @@
       padding: 12px 0;
       font-weight: 500;
       transition: background-color 0.3s ease, color 0.3s ease;
-      text-decoration: none; /* For the <a> tag */
+      text-decoration: none;
     }
 
     .custom-btn:hover {
@@ -76,22 +76,42 @@
       color: #000000;
     }
 
-    /* Secondary button style for the login link */
     .secondary-btn {
       background-color: #f8f9fa;
       color: #000000;
       border-color: #dee2e6;
     }
-    
+
     .secondary-btn:hover {
-       background-color: #e2e6ea;
-       border-color: #dae0e5;
-       color: #000000;
+      background-color: #e2e6ea;
+      border-color: #dae0e5;
+      color: #000000;
     }
 
+    /* Toast styles */
+    #toast {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #28a745; /* green by default */
+      color: #fff;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      transform: translateY(-20px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      z-index: 9999;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
   </style>
 </head>
 <body>
+
   <div class="custom-card">
     <h3 class="auth-heading">Create Your Account</h3>
     <form id="signupForm">
@@ -111,6 +131,10 @@
       <a href="/login" class="btn custom-btn secondary-btn w-100">Already have an account? Login</a>
     </form>
   </div>
+
+  <!-- Toast message container -->
+  <div id="toast"></div>
+
   <script src="/signup.js"></script>
 </body>
 </html>

@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const pageInfo = document.getElementById('pageInfo');
   const leaderboardBtn = document.getElementById('showLeaderboardBtn');
   const leaderboardDiv = document.getElementById('leaderboard');
-
   const dailyBtn = document.getElementById('dailyBtn');
   const monthlyBtn = document.getElementById('monthlyBtn');
   const yearlyBtn = document.getElementById('yearlyBtn');
@@ -24,50 +23,81 @@ document.addEventListener('DOMContentLoaded', () => {
   let limit = parseInt(pageSize.value);
   let currentFilter = '';
 
+  // ✅ Alert popup function
+  function showAlert(message) {
+    const alertBox = document.createElement('div');
+    alertBox.textContent = message;
+    alertBox.style.position = 'fixed';
+    alertBox.style.top = '20px';
+    alertBox.style.left = '50%';
+    alertBox.style.transform = 'translateX(-50%)';
+    alertBox.style.backgroundColor = '#28a745';
+    alertBox.style.color = '#fff';
+    alertBox.style.padding = '10px 20px';
+    alertBox.style.borderRadius = '5px';
+    alertBox.style.zIndex = '9999';
+    alertBox.style.boxShadow = '0 4px 10px rgba(0,0,0,0.3)';
+    document.body.appendChild(alertBox);
+    setTimeout(() => alertBox.remove(), 3000);
+  }
+
   function fetchExpenses() {
     fetch(`/api/expenses?page=${currentPage}&limit=${limit}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
-      .then(res => res.json()).then(data => {
-        expenseList.innerHTML = '';
-        data.expenses.forEach(exp => {
-          const li = document.createElement('li');
-          li.className = 'expense-item';
-          li.innerHTML = `
-            ₹${exp.amount} | ${exp.description} | ${exp.category} | ${exp.date}
-            <div class="expense-actions">
-              <button data-id="${exp.id}" class="btn btn-sm btn-lightbrown me-2 edit-btn">Edit</button>
-              <button data-id="${exp.id}" class="btn btn-sm btn-darkbrown delete-btn">Delete</button>
-            </div>`;
-          expenseList.appendChild(li);
-        });
+    .then(res => res.json())
+    .then(data => {
+      if (data.expenses.length === 0 && currentPage > 1) {
+        currentPage--;
+        return fetchExpenses();
+      }
 
-        pageInfo.innerText = `Page ${data.currentPage} of ${data.totalPages}`;
-        prevBtn.disabled = data.currentPage === 1;
-        nextBtn.disabled = data.currentPage >= data.totalPages;
+      expenseList.innerHTML = '';
+      data.expenses.forEach(exp => {
+        const li = document.createElement('li');
+        li.className = 'expense-item';
+        li.innerHTML = `
+          ₹${exp.amount} | ${exp.description} | ${exp.category} | ${exp.date}
+          <div class="expense-actions">
+            <button data-id="${exp.id}" class="btn btn-sm btn-lightbrown me-2 edit-btn">Edit</button>
+            <button data-id="${exp.id}" class="btn btn-sm btn-darkbrown delete-btn">Delete</button>
+          </div>`;
+        expenseList.appendChild(li);
+      });
 
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            fetch(`/api/expenses/${btn.dataset.id}`, {
-              method: 'DELETE',
-              headers: { Authorization: `Bearer ${token}` }
-            }).then(fetchExpenses);
-          });
-        });
+      pageInfo.innerText = `Page ${data.currentPage} of ${data.totalPages}`;
+      prevBtn.disabled = data.currentPage === 1;
+      nextBtn.disabled = data.currentPage >= data.totalPages;
 
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const exp = data.expenses.find(e => e.id == btn.dataset.id);
-            document.getElementById('amount').value = exp.amount;
-            document.getElementById('description').value = exp.description;
-            document.getElementById('category').value = exp.category;
-            document.getElementById('date').value = exp.date || '';
-            document.getElementById('time').value = exp.time || '';
-            editingId = exp.id;
-            submitBtn.innerText = 'Update Expense';
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          fetch(`/api/expenses/${btn.dataset.id}`, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${token}` }
+          }).then(res => {
+            if (res.ok) {
+              showAlert('Expense deleted successfully!');
+              fetchExpenses();
+            } else {
+              showAlert('Failed to delete expense.');
+            }
           });
         });
       });
+
+      document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const exp = data.expenses.find(e => e.id == btn.dataset.id);
+          document.getElementById('amount').value = exp.amount;
+          document.getElementById('description').value = exp.description;
+          document.getElementById('category').value = exp.category;
+          document.getElementById('date').value = exp.date || '';
+          document.getElementById('time').value = exp.time || '';
+          editingId = exp.id;
+          submitBtn.innerText = 'Update Expense';
+        });
+      });
+    });
   }
 
   prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; fetchExpenses(); } };
@@ -91,7 +121,12 @@ document.addEventListener('DOMContentLoaded', () => {
       method,
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify(expenseData)
-    }).then(() => {
+    }).then(res => {
+      if (res.ok) {
+        showAlert(editingId ? 'Expense updated successfully!' : 'Expense added successfully!');
+      } else {
+        showAlert('Failed to save expense.');
+      }
       editingId = null;
       submitBtn.innerText = 'Add Expense';
       form.reset();
@@ -103,7 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('/api/premium/showleaderboard', {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => res.json()).then(data => {
-      leaderboardDiv.innerHTML = data.length ? data.map((u, i) => `<p>${i + 1}. ${u.name} — ₹${u.totalExpense}</p>`).join('') : '<p>No leaderboard data.</p>';
+      leaderboardDiv.innerHTML = data.length
+        ? data.map((u, i) => `<p>${i + 1}. ${u.name} — ₹${u.totalExpense}</p>`).join('')
+        : '<p>No leaderboard data.</p>';
     });
   };
 
@@ -128,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
   yearlyBtn.onclick = () => handleReport('yearly');
 
   downloadBtn.onclick = () => {
-    if (!currentFilter) return alert('Select filter first!');
+    if (!currentFilter) return showAlert('Select filter first!');
     fetch(`/api/premium/download?filter=${currentFilter}`, {
       headers: { Authorization: `Bearer ${token}` }
     }).then(res => res.blob()).then(blob => {
@@ -148,4 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
   fetchExpenses();
+
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      sessionStorage.removeItem('token');
+      window.location.href = '/login';
+    });
+  }
 });

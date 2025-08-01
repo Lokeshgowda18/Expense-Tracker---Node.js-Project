@@ -1,4 +1,13 @@
-// signup.js
+function showToast(message, isSuccess = true) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.backgroundColor = isSuccess ? '#28a745' : '#dc3545'; // Green for success, red for error
+  toast.classList.add('show');
+
+  setTimeout(() => {
+    toast.classList.remove('show');
+  }, 3000); // Hide after 3s
+}
 
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -14,15 +23,18 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
       body: JSON.stringify({ name, email, password }),
     });
 
+    const data = await res.json();
+
     if (res.ok) {
-      alert('✅ Signup successful! Please login.');
-      window.location.href = '/login';
+      showToast(' Signup successful! Redirecting...', true);
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 2500);
     } else {
-      const data = await res.json();
-      alert(data.message || '❌ Signup failed.');
+      showToast(data.message || '❌ Signup failed.', false);
     }
   } catch (err) {
     console.error('Signup error:', err);
-    alert('Something went wrong. Please try again.');
+    showToast('❌ Something went wrong. Please try again.', false);
   }
 });

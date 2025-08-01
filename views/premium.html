@@ -40,6 +40,8 @@
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
     }
 
     .tracker-title {
@@ -62,9 +64,21 @@
       color: #ffffff;
       padding: 6px 15px;
       border-radius: 20px;
-      margin-left: 10px;
       font-weight: bold;
       font-size: 0.9rem;
+    }
+
+    .logout-btn {
+      background: #dc3545;
+      color: #fff;
+      padding: 6px 15px;
+      border: none;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .logout-btn:hover {
+      background: #c82333;
     }
 
     .btn-darkbrown {
@@ -147,7 +161,6 @@
       color: #999;
     }
 
-    /* ✅ Text visibility fixes */
     label, span, #pageInfo {
       color: #eaeaea !important;
     }
@@ -156,13 +169,6 @@
     #reportResult,
     #totalSpent {
       color: #f2f2f2;
-    }
-
-    #leaderboard span,
-    #leaderboard div,
-    #reportResult span,
-    #reportResult div {
-      color: #f2f2f2 !important;
     }
 
     .card h5 {
@@ -176,9 +182,10 @@
     <div class="card">
       <div class="card-header-bar">
         <div class="tracker-title">Expense Tracker</div>
-        <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap">
           <span id="usernameBox" class="username-box">Loading...</span>
           <span class="premium-badge">⭐ Premium User</span>
+          <button id="logoutBtn" class="logout-btn">Logout</button>
         </div>
       </div>
       <form id="expenseForm">
@@ -233,5 +240,12 @@
   </div>
 
   <script src="/premium.js"></script>
+  <script>
+    // ✅ Logout logic
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.removeItem('token');
+      window.location.href = '/login';
+    });
+  </script>
 </body>
 </html>
